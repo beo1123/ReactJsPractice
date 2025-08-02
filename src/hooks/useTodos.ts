@@ -1,12 +1,14 @@
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import type { Todo } from "../types/todo"
 import { createTodoApi, deleteTodoApi, fetchTodosApi, updateTodoApi } from "../api/todosApi";
 import axios from "axios";
+type FilterType = 'all' | 'active' | 'completed'
 
 export const useTodos = () => {
     const [todos, setTodos] = useState<Todo[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string>("");
+    const [error, setError] = useState<string | null>(null);
+    const [filter, setFilter] = useState<FilterType>("all")
 
     //fetch todo
     useEffect(() => {
@@ -84,6 +86,19 @@ export const useTodos = () => {
         }
     }, [])
 
+    // todo by filter 
+    const filteredTodos = useMemo(() => {
+        switch (filter) {
+            case 'active':
+                return todos.filter(todo => !todo.completed)
+            case 'completed':
+                return todos.filter(todo => todo.completed)
+            case 'all':
+            default:
+                return todos;
+        }
+    }, [todos, filter]);
 
-    return { todos, loading, error, addTodo, toggleComplete, deleteTodo }
+
+    return { filteredTodos, loading, error, filter, addTodo, toggleComplete, deleteTodo, setFilter }
 };

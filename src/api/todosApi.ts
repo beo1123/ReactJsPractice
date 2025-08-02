@@ -7,7 +7,7 @@ const API_URL = "https://jsonplaceholder.typicode.com/todos";
 export const fetchTodosApi = async (signal?: AbortSignal): Promise<Todo[]> => {
     await new Promise(resolve => setTimeout(resolve, 3000));
 
-    const response = await axios.get<Todo[]>(`${API_URL}?_limit=6`, { signal });
+    const response = await axios.get<Todo[]>(`${API_URL}?_limit=10`, { signal });
     return response.data;
 
 };
