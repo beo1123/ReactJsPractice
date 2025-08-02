@@ -1,36 +1,27 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
-
+import './App.css';
+import TodoFrom from './componets/todos/TodoForm';
+import TodoList from './componets/todos/TodoList';
+import LoadingScreen from './componets/ui/LoadingScreen';
+import { useTodos } from './hooks/useTodos';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const { loading, error, todos, toggleComplete, deleteTodo, addTodo } = useTodos();
 
+  if (loading) return <LoadingScreen />;
+  if (error) return <div className="text-center p-4 text-red-500">Error: {error}</div>;
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div className="min-h-screen w-full bg-gradient-to-br from-cyan-300 to-cyan-500 p-4">
+      <div className="container mx-auto p-4 max-w-2xl bg-gray-50 rounded-lg shadow-md mt-10">
+        <h1 className="text-3xl font-bold mb-4 text-center text-gray-800">Todo List App</h1>
+        <TodoFrom addTodo={addTodo} />
+        <TodoList
+          todos={todos}
+          onToggleComplete={toggleComplete}
+          handleDelete={deleteTodo}
+        />
       </div>
-      <h1 className='text-5xl text-amber-300'>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    </div>
+  );
 }
 
-export default App
+export default App;
