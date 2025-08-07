@@ -6,7 +6,7 @@ import LoadingScreen from './componets/ui/LoadingScreen';
 import { useTodos } from './hooks/useTodos';
 
 function App() {
-  const { loading, error, filteredTodos, filter, toggleComplete, deleteTodo, addTodo, setFilter } = useTodos();
+  const { loading, error, filteredTodos, loadingMore, filter, hasMore, toggleComplete, deleteTodo, addTodo, setFilter, setPage } = useTodos();
 
   if (loading) return <LoadingScreen />;
   if (error) return <div className="text-center p-4 text-red-500">Error: {error}</div>;
@@ -22,6 +22,9 @@ function App() {
           todos={filteredTodos}
           onToggleComplete={toggleComplete}
           handleDelete={deleteTodo}
+          hasMore={hasMore}
+          loadingMore={loadingMore}
+          setPage={setPage}
         />
       </div>
     </div>

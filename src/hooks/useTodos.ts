@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import type { Todo } from "../types/todo"
 import { createTodoApi, deleteTodoApi, fetchTodosApi, updateTodoApi } from "../api/todosApi";
 import axios from "axios";
@@ -7,36 +7,51 @@ type FilterType = 'all' | 'active' | 'completed'
 export const useTodos = () => {
     const [todos, setTodos] = useState<Todo[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
+    const [loadingMore, setLoadingMore] = useState<boolean>(true);
+
     const [error, setError] = useState<string | null>(null);
     const [filter, setFilter] = useState<FilterType>("all")
+    const [page, setPage] = useState<number>(1);
+    const [hasMore, setHasMore] = useState<boolean>(true);
+    const isFetchingRef = useRef(false);
+
+    const getTodos = useCallback(async (page: number, controller?: AbortController) => {
+
+        try {
+            setLoadingMore(true)
+            isFetchingRef.current = true;
+            const data = await fetchTodosApi(page, controller?.signal);
+            setTodos(prev => [...prev, ...data]);
+            const hasMoreData = data.length > 0;
+            setHasMore(hasMoreData);
+        }
+        catch (e) {
+            if (!axios.isCancel(e))
+                setError('Fail to fecth data.');
+        } finally {
+            setLoading(false);
+            setLoadingMore(false)
+
+            isFetchingRef.current = false;
+
+        }
+    }, []);
+
 
     //fetch todo
     useEffect(() => {
         const controller = new AbortController();
-        const getTodos = async () => {
-            try {
-                const data = await fetchTodosApi(controller.signal);
-                setTodos(data);
-
-            }
-            catch (e) {
-                if (!axios.isCancel(e))
-                    setError('Fail to fecth data.');
-            } finally {
-                setLoading(false);
-            }
-        }
-        getTodos();
+        getTodos(page, controller);
         return () => controller.abort();
-    }, []);
-    //add todo
+    }, [page, getTodos]);
 
+
+    //add todo
     const addTodo = useCallback(async (title: string) => {
         const controller = new AbortController();
         try {
             const newTodoPayload = { userId: 1, title, completed: false };
             setLoading(true)
-
             const newTodo = await createTodoApi(newTodoPayload, controller.signal);
             setTodos(prevTodo => [...prevTodo, newTodo]);
 
@@ -100,5 +115,5 @@ export const useTodos = () => {
     }, [todos, filter]);
 
 
-    return { filteredTodos, loading, error, filter, addTodo, toggleComplete, deleteTodo, setFilter }
+    return { filteredTodos, loading, error, filter, hasMore, loadingMore, setPage, getTodos, addTodo, toggleComplete, deleteTodo, setFilter }
 };

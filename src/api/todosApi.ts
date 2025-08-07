@@ -4,10 +4,10 @@ import type { Todo } from "../types/todo";
 
 const API_URL = "https://jsonplaceholder.typicode.com/todos";
 
-export const fetchTodosApi = async (signal?: AbortSignal): Promise<Todo[]> => {
-    await new Promise(resolve => setTimeout(resolve, 3000));
+export const fetchTodosApi = async (page: number, signal?: AbortSignal): Promise<Todo[]> => {
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
-    const response = await axios.get<Todo[]>(`${API_URL}?_limit=10`, { signal });
+    const response = await axios.get<Todo[]>(`${API_URL}?_limit=10&_page=${page}`, { signal });
     return response.data;
 
 };
