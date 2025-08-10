@@ -21,7 +21,6 @@ export const useInfiniteScroll = (
             if (reachedBottom && !calledRef.current) {
                 calledRef.current = true;
                 callback();
-                console.log('dd')
             }
 
 
